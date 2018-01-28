@@ -1,0 +1,13 @@
+[Unit]
+Description=Flask Docker Container
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/bin/docker start -a flask
+ExecStop=/usr/bin/docker stop -t 5 flask
+
+[Install]
+WantedBy=multi-user.target

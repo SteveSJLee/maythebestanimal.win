@@ -1,0 +1,7 @@
+---
+
+- hosts: security_group_{{ app_name }}_webservers
+  roles:
+    - server_base
+    - database
+    - flask

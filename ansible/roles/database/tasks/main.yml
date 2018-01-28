@@ -1,0 +1,38 @@
+---
+
+# roles/database/tasks/main.yml
+
+- name: Install mariadb environment file
+  template: src=mariadb-env.j2 dest=/etc/systemd/system/docker-mariadb
+  become: true
+
+- name: Create & start MariaDB container on host
+  docker_container:
+    name: mariadb
+    env_file: "/etc/systemd/system/docker-mariadb"
+    image: "{{ database_docker_image }}"
+    state: started
+  become: true
+
+- name: Stop MariaDB container once configured
+  docker_container:
+    name: mariadb
+    image: "{{ database_docker_image }}"
+    state: stopped
+  become: true
+
+- name: Create systemd service file
+  template: src=mariadb-env.j2 dest="/etc/systemd/system/docker-mariadb"
+  become: true
+
+- name: Install mariadb container as systemd service
+  template: src=mariadb-systemd.service.j2 dest="/etc/systemd/system/docker-mariadb.service" mode=644
+  become: true
+
+- name: Reload systemd services
+  systemd: daemon_reload=yes
+  become: true
+
+- name: Start dockerized MariaDB with systemd
+  service: name=docker-mariadb.service state=started enabled=yes
+  become: true

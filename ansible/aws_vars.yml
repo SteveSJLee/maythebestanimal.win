@@ -1,0 +1,11 @@
+vpc_cidr: "10.0.0.0/16"
+subnet_cidr:  "10.0.0.0/24"
+
+ami_id: "ami-6a98b410"
+instance_count: 1
+aws_keypair: "{your-AWS-keypair-name}"
+
+# Patch for an issue where the ec2_group module ignored
+# the virtualenv python and used the system one instead:
+# https://github.com/ansible/ansible/issues/33052
+ansible_python_interpreter: venv/bin/python

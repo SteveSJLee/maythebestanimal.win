@@ -1,0 +1,21 @@
+---
+
+# roles/instances/tasks/main.yml
+
+- name: Provision AWS atomic webhost/database
+  ec2:
+     key_name: "{{ aws_keypair }}"
+     group_id: "{{ app_secgroup_id }}"
+     instance_type: "t2.micro"
+     vpc_subnet_id: "{{ app_subnet.subnet.id }}"
+     image: "{{ ami_id }}"
+     exact_count: "{{ instance_count }}"
+     wait: yes
+     assign_public_ip: yes
+     wait_timeout: 600
+     count_tag:
+       Class: "webserver"
+     instance_tags:
+       Name: "{{ app_name }}-webserver"
+       Class: "webserver"
+  register: app_ec2

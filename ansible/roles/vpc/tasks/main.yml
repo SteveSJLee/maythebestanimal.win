@@ -1,0 +1,74 @@
+---
+
+# roles/vpc/tasks/main.yml
+
+- name: Create VPC
+  ec2_vpc_net:
+    name: "{{ app_name }}"
+    cidr_block: "{{ vpc_cidr }}"
+    state: "present"
+  register: app_vpc
+
+- name: Set VPC ID in variable
+  set_fact:
+    app_vpc_id: "{{ app_vpc.vpc.id }}"
+
+- name: Create Subnet
+  ec2_vpc_subnet:
+    state: "present"
+    vpc_id: "{{ app_vpc_id }}"
+    cidr: "{{ subnet_cidr }}"
+    resource_tags:
+      Name: "{{ app_name }}-Public"
+  register: app_subnet
+
+- name: Set Subnet ID in variable
+  set_fact:
+    app_subnet_id: "{{ app_subnet.subnet.id }}"
+
+- name: Create Internet Gateway
+  ec2_vpc_igw:
+    vpc_id: "{{ app_vpc_id }}"
+    tags:
+      Name: "{{ app_name }}-IGW"
+    state: "present"
+  register: app_igw
+
+- name: Set Internet Gateway ID in variable
+  set_fact:
+    app_igw_id: "{{ app_igw.gateway_id }}"
+
+- name: Create Route Table
+  ec2_vpc_route_table:
+    vpc_id: "{{ app_vpc_id }}"
+    tags:
+      Name: "{{ app_name }}-PublicRoutes"
+    subnets:
+      - "{{ app_subnet_id }}"
+    routes:
+      - dest: "0.0.0.0/0"
+        gateway_id: "{{ app_igw_id }}"
+
+- name: Create Security Group
+  ec2_group:
+    name: "{{ app_name }}-webservers"
+    description: "SSH, HTTP and HTTPS from anywhere"
+    vpc_id: "{{ app_vpc_id }}"
+    rules:
+      - proto: tcp
+        from_port: 80
+        to_port: 80
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 443
+        to_port: 443
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: 0.0.0.0/0
+  register: app_secgroup
+
+- name: Get Security Group ID
+  set_fact:
+    app_secgroup_id: "{{ app_secgroup.group_id }}"

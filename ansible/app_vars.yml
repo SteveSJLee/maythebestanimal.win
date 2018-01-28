@@ -1,0 +1,6 @@
+mysql_database_name: "main"
+mysql_root_password: "{long, random string}"
+database_docker_image: "mariadb:10.3.4"
+flask_docker_image: "bretttegart/maythebestanimal.win:v3"
+flask_secret_key: '{long, random string}'
+flask_db_host: 'mariadb'

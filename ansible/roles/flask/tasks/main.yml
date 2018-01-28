@@ -1,0 +1,47 @@
+---
+
+# roles/flask/tasks/main.yml
+
+- name: Install Flask environment file
+  template: src=flask-env.j2 dest=/etc/systemd/system/docker-flask
+  become: true
+
+- name: Create & start Flask container on host
+  docker_container:
+    name: flask
+    env_file: "/etc/systemd/system/docker-flask"
+    image: "{{ flask_docker_image }}"
+    state: started
+    published_ports:
+    - "80:8000"
+    links: mariadb
+  become: true
+  register: flask_created
+
+- name: Initialize database tables
+  command: 'docker exec -d flask /bin/sh -c "sh /app/init_db_tables.sh"'
+  become: true
+  when: flask_created.changed
+
+- name: Stop Flask container once configured
+  docker_container:
+    name: flask
+    image: "{{ flask_docker_image }}"
+    state: stopped
+  become: true
+
+- name: Create systemd service file
+  template: src=flask-env.j2 dest="/etc/systemd/system/docker-flask"
+  become: true
+
+- name: Install flask container as systemd service
+  template: src=flask-systemd.service.j2 dest="/etc/systemd/system/docker-flask.service" mode=644
+  become: true
+
+- name: Reload systemd services
+  systemd: daemon_reload=yes
+  become: true
+
+- name: Start dockerized Flask with systemd
+  service: name=docker-flask.service state=started enabled=yes
+  become: true
