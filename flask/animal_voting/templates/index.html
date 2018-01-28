@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Vote on your favorite animal!</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+                <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+		<meta name="viewport" content = "width=device-width, initial-scale=1.0">
+                <style type="text/css">
+                  body { background: HoneyDew !important; }
+                </style>
+	</head>
+<body>
+<div class="container">
+	<h2>Vote Now!</h2>
+	<form action="" role="" method=post>
+	  {{ form.hidden_tag() }}
+          <div class="form-group">
+	  <label for="name">{{ form.person_name.label }}</label> {{ form.person_name(size=20) }}<br>
+	  <label for="favorite_color">{{ form.favorite_color.label }}</label> {{ form.favorite_color(size=20) }}<br>
+	  <label for="cats_or_dogs">{{ form.cats_or_dogs.label }}</label> {{ form.cats_or_dogs }}<br>
+          </div>
+	  <input type="submit" value="Vote!">
+	</form>
+
+	{% with messages = get_flashed_messages() %}
+	  {% if messages %}
+	  <ul class=flashes>
+	    {% for message in messages %}
+              <div class="alert alert-warning">
+	      {{ message }}
+              </div>
+	    {% endfor %}
+	  </ul>
+	  {% endif %}
+	{% endwith %}
+</div>
+</body>
+</html>
